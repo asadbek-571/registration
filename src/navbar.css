@@ -1,0 +1,48 @@
+
+.navigation {
+    height: 100px;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    padding: 17.5px 0;
+}
+
+
+.brand {
+    position: absolute;
+    padding-left: 20px;
+    float: left;
+    text-transform: uppercase;
+    display: flex;
+}
+
+.brand a {
+    display: block;
+    width: 80px;
+    text-decoration: none;
+}
+
+.brand a img {
+    max-width: 100%;
+    border-radius: 50%;
+    height: 60px;
+}
+
+.university-name p {
+    margin: 0;
+    font-weight: bold;
+    font-size: 20px;
+    color: #011E46;
+    text-align: center;
+}
+
+.nav-container {
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+nav {
+    float: right;
+}
+

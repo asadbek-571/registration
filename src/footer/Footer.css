@@ -1,0 +1,142 @@
+
+footer {
+    background: linear-gradient(to right, var(--blue), var(--blue)), url("../image/hexagon.png");
+    background-size: cover;
+}
+
+footer .content {
+    width: fit-content;
+}
+
+footer .text-header {
+    margin: 0;
+    color: #fff;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.text-down {
+    width: 60px;
+    background-color: #000;
+    height: 2px !important;
+    margin: 10px;
+    opacity: 1;
+}
+
+.contact {
+    color: #fff;
+    font-size: 14px;
+}
+
+.social-links {
+    display: flex;
+}
+
+.social-btn {
+    cursor: pointer;
+    height: 40px;
+    width: 40px;
+    font-family: 'Titillium Web', sans-serif;
+    color: #333;
+    border-radius: 10px;
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+    background: white;
+    margin: 5px;
+    transition: 1s;
+}
+
+.social-btn span {
+    width: 0px;
+    overflow: hidden;
+    transition: 1s;
+    text-align: center;
+}
+
+.social-btn:hover {
+    width: 150px;
+    border-radius: 5px;
+}
+
+.social-btn:hover span {
+    padding: 2px;
+    width: max-content;
+}
+
+#twitter svg {
+    fill: #1da1f2;
+}
+
+#linkedin svg {
+    fill: #0e76a8;
+}
+
+#github {
+    fill: #333;
+}
+
+#useful-source {
+    padding: 15px;
+}
+
+#useful-source .useful-card {
+    padding: 10px;
+    transition: 0.3s all linear;
+    background-color: transparent;
+}
+
+#useful-source .useful-card a {
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+    border-radius: 15px;
+    padding: 5px;
+}
+
+.useful-card img {
+    max-width: 100%;
+    max-height: 80px;
+}
+
+#useful-source .useful-card:hover {
+    transform: translateY(-10%)
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+footer iframe {
+    width: 100%;
+    height: 280px;
+}
+
+footer input::placeholder {
+    color: #fff !important;
+}
+
+footer input:focus {
+    border-color: #fff !important;
+    box-shadow: #fff !important;
+}
+
+footer textarea::placeholder {
+    color: #fff !important;
+}
+
+footer textarea:focus {
+    border-color: #fff !important;
+    box-shadow: #fff !important;
+}
+
+footer section {
+    height: 50px;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+}

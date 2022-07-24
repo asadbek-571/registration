@@ -1,0 +1,144 @@
+img {
+    width:100px;
+    height: 70px;
+    margin:3px;
+    padding: 2px;
+}
+.btn{
+    margin: 15px;
+    padding: 5px;
+}
+
+[type=radio] {
+    margin:0;padding:0;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+}
+
+
+
+.form__template .input-preview__src, .form__template .radios input, .payment__type input {
+    display: none !important
+}
+
+.form__template .input-preview {
+    border-radius: 0;
+    overflow: hidden;
+    width: 160px;
+    height: 120px;
+    display: flex;
+    margin-left: 50px;
+    justify-content: center;
+    align-items: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    transition: ease-in-out 750ms;
+    background-color: #8b8888;
+    background-size: cover;
+    border: 1px solid #8b8888;
+    cursor: pointer;
+    margin-bottom: 0
+}
+
+@media (max-width: 767px) {
+    .form__template .input-preview {
+        margin-left: 0
+    }
+}
+
+.form__template .input-preview.has-image::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    background-size: contain !important;
+    content: " ";
+    transition: ease-in-out 750ms
+}
+
+.form__template .radios {
+    display: flex;
+    align-items: center
+}
+
+.form__template .radios input:checked + label::before {
+    opacity: 1
+}
+
+.form__template .radios label {
+    position: relative;
+    padding-left: 25px;
+    flex: 0 0 200px;
+    margin-bottom: 0;
+    cursor: pointer
+}
+
+@media (max-width: 767px) {
+    .form__template .radios label {
+        flex: 0 0 auto;
+        margin-right: 50px
+    }
+}
+
+.form__template .radios label:after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 0;
+    border-radius: 50%;
+    border: 2px solid #00264b;
+    width: 20px;
+    height: 20px
+}
+
+.form__template .radios label:before {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    border-radius: 50%;
+    background: #00264b;
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    transition: all .2s
+}
+
+@media (max-width: 767px) {
+    section.register {
+        overflow: hidden
+    }
+}
+
+.payment__type {
+    display: none;
+    padding-top: 0
+}
+
+.payment__type.online {
+    display: flex;
+    flex-wrap: wrap
+}
+
+.payment__type p {
+    width: 100%;
+    font-weight: 500
+}
+
+.payment__type input:checked + label {
+    background: url(../image/check__orange.svg) no-repeat center bottom 10px;
+    border-color: #0d6efd !important
+}
+
+.payment__type label {
+    display: inline-block;
+    margin-right: 60px;
+    border: 3px solid transparent;
+    border-radius: 5px;
+    padding: 20px 20px 30px;
+    cursor: pointer
+}
