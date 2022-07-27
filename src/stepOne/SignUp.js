@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react'
+import React, {useState, useEffect} from 'react'
 import InputMask from 'react-input-mask';
 import {Alert, Col, Container, Row} from "react-bootstrap";
 import axios from "axios";
@@ -48,40 +48,57 @@ const SignUp = () => {
 
 
     const submitForm = async (e) => {
-        // if (formValue.phone.length === 12 &&
-        //     formValue.passport.length === 7
-        // ) {
-        if (formValue.otherPhone === '998') {
-            setFormValue({
-                ...formValue,
-                otherPhone: "null"
-            });
-            console.log(formValue);
+        if (formValue.phoneNumber.length === 16 &&
+            formValue.passport.length === 10 &&
+            formValue.firstName !== '' &&
+            formValue.lastName !== '' &&
+            formValue.fatherName !== '' &&
+            formValue.birthday !== '' &&
+            formValue.districtId > 0 &&
+            formValue.regionId > 0
+        ) {
+            if (formValue.otherPhone === '998') {
+                setFormValue({
+                    ...formValue,
+                    otherPhone: "null"
+                });
+            }
+            if (formValue.otherPhone.startsWith("+")) {
+                setFormValue({
+                    ...formValue,
+                    otherPhone: formValue.otherPhone.substring(1, formValue.otherPhone.length - 1)
+                });
+            }
+            if (formValue.phoneNumber.startsWith("+")) {
+                setFormValue({
+                    ...formValue,
+                    phoneNumber: formValue.phoneNumber.substring(1, formValue.phoneNumber.length - 1)
+                });
+            }
+
+            try {
+                await register(formValue)
+                    .then(data => {
+                        console.log(data)
+                        if (data.success === false) {
+                            setAlertText(data.message)
+                            setVariant("danger")
+                        }
+                        if (data.success === true) {
+                            window.location = '/verification'
+                        }
+                    })
+            } catch (e) {
+                console.log("Error => " + e)
+            }
+        } else {
+            setAlertText("Ma'lumotlar to'ldirilmagan")
+            setVariant("danger")
         }
-        const data = { username: 'example' };
-
-
-
-        try {
-            await register(formValue)
-                .then(data => {
-                    console.log(data)
-                    if (data.success===false){
-                        setAlertText(data.message)
-                        setVariant("danger")
-                    }
-                    if (data.success === true){
-                        window.location='/verification'
-                    }
-                })
-        } catch (e) {
-            console.log("Error => "+e)
-        }
-
     }
     const register = async (studentInfo) => {
 
-        const response = await fetch("http://localhost:8080/api/v1/user/registerForEntrant", {
+        const response = await fetch("api/v1/user/registerForEntrant", {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -98,25 +115,39 @@ const SignUp = () => {
 
     }
 
+    const getRegionData = async () => {
+        const response = await fetch(
+            "api/v1/region/getRegions"
+        ).then((response) => response.json());
+            localStorage.setItem("regions", JSON.stringify(response.data.data))
+            setRegion(response.data.data)
+    };
 
     useEffect(() => {
-        axios
-            .get("http://localhost:8080/api/v1/region/getRegions")
-            .then(res => {
-                localStorage.setItem("regions", JSON.stringify(res.data.data))
-                setRegion(res.data.data)
-            })
-            .catch(error => console.log(error));
+        const regionList = JSON.parse(localStorage.getItem("regions"))
+        const districtList = JSON.parse(localStorage.getItem("districts"))
+        if (regionList == null ) {
+            axios
+                .get("api/v1/region/getRegions")
+                .then(res => {
+                    console.log(res)
+                    localStorage.setItem("regions", JSON.stringify(res.data.data))
+                    setRegion(res.data.data)
+                })
+                .catch(error => console.log(error));
 
-        axios
-            .get("http://localhost:8080/api/v1/district/getDistrictList")
-            .then(res => {
-                localStorage.setItem("districts", JSON.stringify(res.data.data))
-                setDistrict(res.data.data)
-            })
-            .catch(error => console.log(error));
+        }
+        if (districtList == null ) {
+            axios
+                .get("api/v1/district/getDistrictList")
+                .then(res => {
+                    localStorage.setItem("districts", JSON.stringify(res.data.data))
+                    setDistrict(res.data.data)
+                })
+                .catch(error => console.log(error));
+        }
 
-    }, [600000]);
+    }, []);
 
     function getRegions(event) {
         let id = event.target.value;
@@ -151,11 +182,10 @@ const SignUp = () => {
     }
     return (
         <Container className={'pt-4 '}>
-            <Alert  variant={Variant} show={!!AlertText}>
+            <Alert variant={Variant} show={!!AlertText}>
                 {AlertText}
             </Alert>
-            <form >
-
+            <form>
                 <Container className={'p-2'}>
                     <h3>Ro'yxatdan o'tish</h3>
                     <br/>
@@ -345,7 +375,8 @@ const SignUp = () => {
                                 >
                                     <option selected value="0">Viloyat tanlang</option>
                                     {
-                                        region.map((value, index) => <option key={index} value={value.id}>{value.nameUz}</option>)
+                                        region.map((value, index) => <option key={index}
+                                                                             value={value.id}>{value.nameUz}</option>)
                                     }
                                 </select>
                             </div>
@@ -363,7 +394,7 @@ const SignUp = () => {
                                     onChange={handleChange}
                                     defaultValue={'0'}
                                 >
-                                    <option selected={true}  value="0">Tumanni tanlang</option>
+                                    <option selected={true} value="0">Tumanni tanlang</option>
                                     {
                                         district.map((value, index) => value.regionId == regionId &&
                                             <option key={index} value={value.id}>{value.nameUz}</option>)
@@ -375,7 +406,7 @@ const SignUp = () => {
                 </Container>
 
                 <Col md={12}>
-                    <button type="button" onClick={submitForm}className="btn btn-primary btn-lg float-right">
+                    <button type="button" onClick={submitForm} className="btn btn-primary btn-lg float-right">
                         Keyingisi
                     </button>
                 </Col>

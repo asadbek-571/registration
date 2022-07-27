@@ -1,6 +1,6 @@
 import React ,{useState}from 'react'
 import InputMask from 'react-input-mask';
-import {Col, Container, Row, Toast} from "react-bootstrap";
+import {Alert, Col, Container, Row} from "react-bootstrap";
 import "react-step-progress-bar/styles.css";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import Check from '../image/check.svg'
@@ -28,7 +28,7 @@ const SecondStep = () => {
 
     const register = async (studentInfo) => {
 
-        const response = await fetch("http://localhost:8080/api/v1/public/auth/verify", {
+        const response = await fetch("http://api.register.uniep.uz/api/v1/public/auth/verify", {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -87,6 +87,9 @@ const SecondStep = () => {
     }
     return (
         <Container>
+            <Alert variant={Variant} show={!!AlertText}>
+                {AlertText}
+            </Alert>
             <form >
                 <Container>
                 <h3>Ro'yxatdan o'tish</h3>

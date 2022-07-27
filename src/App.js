@@ -13,6 +13,7 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import {Card, Navbar, Row, Toast} from "react-bootstrap";
 import {Footer} from "./footer/Footer";
 import './css/navbar.css'
+import StepFive from "./stepFive/StepFive";
 
 function App() {
     const pStyle = {
@@ -102,12 +103,13 @@ function App() {
                 <br/>
                 <div className={"auth-box shadow"}>
                     <Routes>
-                        <Route exact path="/" element={<Login/>}/>
-                        <Route path="/sign-in" element={<Login/>}/>
-                        <Route path="/sign-up" element={<SignUp/>}/>
+                        {/*<Route exact path="/" element={<Login/>}/>*/}
+                        {/*<Route path="/sign-in" element={<Login/>}/>*/}
+                        <Route exact path="/" element={<SignUp/>}/>
                         <Route path="/verification" element={<SecondStep/>}/>
                         <Route path="/degree" element={<StepThird/>}/>
                         <Route path="/pay" element={<FourthStep/>}/>
+                        <Route path="/success" element={<StepFive/>}/>
                     </Routes>
                 </div>
 
