@@ -98,7 +98,7 @@ const SignUp = () => {
     }
     const register = async (studentInfo) => {
 
-        const response = await fetch("api/v1/user/registerForEntrant", {
+        const response = await fetch("http://api.register.uniep.uz/api/v1/user/registerForEntrant", {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -117,7 +117,7 @@ const SignUp = () => {
 
     const getRegionData = async () => {
         const response = await fetch(
-            "api/v1/region/getRegions"
+            "http://api.register.uniep.uz/api/v1/region/getRegions"
         ).then((response) => response.json());
             localStorage.setItem("regions", JSON.stringify(response.data.data))
             setRegion(response.data.data)
@@ -128,7 +128,7 @@ const SignUp = () => {
         const districtList = JSON.parse(localStorage.getItem("districts"))
         if (regionList == null ) {
             axios
-                .get("api/v1/region/getRegions")
+                .get("http://api.register.uniep.uz/api/v1/region/getRegions")
                 .then(res => {
                     console.log(res)
                     localStorage.setItem("regions", JSON.stringify(res.data.data))
@@ -139,7 +139,7 @@ const SignUp = () => {
         }
         if (districtList == null ) {
             axios
-                .get("api/v1/district/getDistrictList")
+                .get("http://api.register.uniep.uz/api/v1/district/getDistrictList")
                 .then(res => {
                     localStorage.setItem("districts", JSON.stringify(res.data.data))
                     setDistrict(res.data.data)
