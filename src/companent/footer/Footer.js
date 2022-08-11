@@ -1,9 +1,9 @@
 import React from 'react';
 // import { CDBFooter, CDBFooterLink, CDBBox, CDBBtn, CDBIcon } from 'cdbreact';
-import Instagram from "../image/svg/Instagram-Logo.wine.svg"
-import Facebook from "../image/svg/Facebook-f_Logo-Blue-Logo.wine.svg"
-import Telegram from "../image/svg/Telegram_(software)-Logo.wine.svg"
-import Youtube from "../image/svg/YouTube-Icon-Full-Color-Logo.wine.svg"
+import Instagram from "../../image/svg/Instagram-Logo.wine.svg"
+import Facebook from "../../image/svg/Facebook-f_Logo-Blue-Logo.wine.svg"
+import Telegram from "../../image/svg/Telegram_(software)-Logo.wine.svg"
+import Youtube from "../../image/svg/YouTube-Icon-Full-Color-Logo.wine.svg"
 import "./Footer.css"
 export const Footer = () => {
     return (

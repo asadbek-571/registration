@@ -1,11 +1,15 @@
-import React, { useState, useEffect} from 'react'
+import React, {useState, useEffect} from 'react'
 import {Alert, Col, Container, Row} from "react-bootstrap";
 import axios from "axios";
-// import Click from '../image/click.svg'
-// import Payme from '../image/payme.svg'
+import {useNavigate} from 'react-router-dom'
+import Click from '../../image/click.svg'
+import Payme from '../../image/payme.svg'
 import './FourthStep.css'
 import {ProgressBar, Step} from "react-step-progress-bar";
-import Check from "../image/check.svg";
+import Check from "../../image/check.svg";
+import {notify} from "../../notification";
+import {ToastContainer} from "react-toastify";
+
 
 const FourthStep = (string, radix) => {
 
@@ -13,12 +17,12 @@ const FourthStep = (string, radix) => {
     const labelStyle = {
         fontSize: "16px"
     }
-    // const [branch, setBranch] = useState([]);
+    const navigate = useNavigate()
     const [department, setDepartment] = useState([]);
     const [faculty, setFaculty] = useState([]);
     const [facultyId, setFacultyId] = useState();
-    const [Variant, setVariant] = useState("");
-    const [AlertText, setAlertText] = useState("");
+    const [foreignLanguage, setForeignLanguage] = useState(true);
+    const [pay, setPay] = useState(true);
 
 
     const [formValue, setFormValue] = React.useState({
@@ -31,89 +35,113 @@ const FourthStep = (string, radix) => {
     });
 
     const handleChange = (event) => {
-
         setFormValue({
             ...formValue,
             [event.target.name]: event.target.value
         });
+
+        if (formValue.departmentId == "6") {
+            setForeignLanguage(false);
+        }else if (formValue.departmentId != "6"){
+            setForeignLanguage(true);
+        }
+
     }
 
 
     const submitForm = async (e) => {
 
-        // let number = parseInt(formValue.facultyId);
-        // let number1 = parseInt(formValue.departmentId);
-        // let number2 = parseInt(formValue.typeOfEducation);
-        // let number3 = parseInt(formValue.languageOfEducation);
-        // let number4 = parseInt(formValue.branchId);
 
-        // if (
-        //     number > 0 &&
-        //     number1 > 0 &&
-        //     number2 > 0 &&
-        //     number3> 0 &&
-        //     number4 > 0
-        // ) {
+        if (
+            formValue.languageOfEducation &&
+            formValue.facultyId &&
+            formValue.typeOfEducation &&
+            formValue.branchId &&
+            formValue.departmentId
+        ) {
 
             try {
                 await register(formValue)
                     .then(data => {
-                        console.log(data)
+
                         if (data.success === false) {
-                            setAlertText(data.message)
-                            setVariant("danger")
+
                         }
-                        if (data.success === true) {
-                            localStorage.setItem("display","hide")
-                            window.location = '/success'
-                        }
+
                     })
             } catch (e) {
                 console.log("Error => " + e)
             }
-        // } else {
-        //     setAlertText("Ma'lumotlar to'ldirilmagan")
-        //     setVariant("danger")
-        // }
+        } else {
+            notify(false, "Ma'lumotlar to'ldirilmagan")
+        }
     }
-    const register = async (studentInfo) => {
+
+    const register = async () => {
         const accessToken = ("Bearer " + localStorage.getItem("accessToken"))
-        const response = await fetch("http://api.register.uniep.uz/api/v1/public/insEdu/add", {
-            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-            mode: 'cors', // no-cors, *cors, same-origin
-            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: 'same-origin', // include, *same-origin, omit
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': accessToken
-            },
-            redirect: 'follow', // manual, *follow, error
-            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify(studentInfo) // body data type must match "Content-Type" header
-        });
-        return response.json(); // parses JSON response into native JavaScript objects
+        const response = await axios.post(
+            'https://api.register.uniep.uz/api/v1/public/insEdu/add',
+            formValue,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': accessToken,
+                },
+            }
+        )
+        if (response.data.data) {
+            let data = response.data.data;
 
+            const url = ("https://my.click.uz/services/pay?service_id=24511&merchant_id=17061&amount=1000&transaction_param=" + data);
+            if (pay) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } else {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+
+        }
+        if (!response.data.success) {
+            notify(false, response.data.message)
+        }
+        return response;
     }
 
+    setInterval(async () => {
+
+        const accessToken = ("Bearer " + localStorage.getItem("accessToken"))
+        const response = await axios.post(
+            'https://api.register.uniep.uz/api/v1/user/get/is-paid',
+            formValue,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': accessToken,
+                },
+            }
+        )
+        if (response.data.data === true) {
+            navigate('/success')
+        }
+    }, 2000);
 
     useEffect(() => {
+
 
         const facultyList = JSON.parse(localStorage.getItem("faculty"))
         const departmentList = JSON.parse(localStorage.getItem("department"))
         if (departmentList == null) {
             axios
-                .get("http://api.register.uniep.uz/api/v1/department/getDepartmentList")
+                .get("https://api.register.uniep.uz/api/v1/department/getDepartmentList")
                 .then(res => {
                     localStorage.setItem("department", JSON.stringify(res.data))
                     setDepartment(res.data)
-                    console.log(department)
                 })
                 .catch(error => console.log(error));
 
         }
         if (facultyList == null) {
             axios
-                .get("http://api.register.uniep.uz/api/v1/faculty/getList")
+                .get("https://api.register.uniep.uz/api/v1/faculty/getList")
                 .then(res => {
                     localStorage.setItem("faculty", JSON.stringify(res.data))
                     setFaculty(res.data)
@@ -126,7 +154,8 @@ const FourthStep = (string, radix) => {
     function getFaculty(event) {
         let id = event.target.value;
         setFacultyId(id)
-        console.log(typeof facultyId)
+        handleChange(event)
+
 
         const faculty = JSON.parse(localStorage.getItem("faculty"))
         const department = JSON.parse(localStorage.getItem("department"))
@@ -156,11 +185,23 @@ const FourthStep = (string, radix) => {
         background: "#090979",
         position: "relative",
     }
+
+    function handleChangeClick() {
+        setPay(true)
+    }
+
+    function handleChangePayme() {
+        notify(false, "Ayni vaqtda ushbu xizmatdan foydalanib bo'lmaydi")
+        // setPay(false)
+    }
+
+    function getDepartmentId(event) {
+        handleChange(event)
+    }
+
     return (
         <Container>
-            <Alert variant={Variant} show={!!AlertText}>
-                {AlertText}
-            </Alert>
+
             <form>
 
                 <Container className={'p-2'}>
@@ -264,6 +305,7 @@ const FourthStep = (string, radix) => {
                                     onInvalid={e => e.target.setCustomValidity("Bo'limni  tanlang")}
                                     onInput={e => e.target.setCustomValidity('')}
                                     onChange={handleChange}
+                                    onClick={getDepartmentId}
                                 >
                                     <option selected={true} value="0">Tanlang</option>
                                     {
@@ -290,7 +332,9 @@ const FourthStep = (string, radix) => {
                                     <option selected={true} value="0">Tanlang</option>
                                     <option value="1">Kunduzgi</option>
                                     <option value="2">Kechgi</option>
-                                    <option value="3">Sirtqi</option>
+                                    {
+                                        foreignLanguage && <option value="3">Sirtqi</option>
+                                    }
                                 </select>
                             </div>
                         </Col>
@@ -337,18 +381,24 @@ const FourthStep = (string, radix) => {
                         </Col>
 
                     </Row>
+                    <p className={'fs-6 opacity-50'}>Imtihon uchun to'lov: <strong className={'opacity-75'}>180
+                        000</strong></p>
                     <hr/>
-                    {/*<div className="col-lg-12">*/}
-                    {/*    <div className="form-group payment__type online">*/}
-                    {/*        <p>To'lov tizimini tanlang</p>*/}
-                    {/*        <input type="radio" name="payment_sys" value="Payme"*/}
-                    {/*               id="Payme"/>*/}
-                    {/*        <label htmlFor="Payme"><img src={Payme} alt=""/></label>*/}
-                    {/*        <input type="radio" name="payment_sys" value="Click"*/}
-                    {/*               checked id="Click"/>*/}
-                    {/*        <label htmlFor="Click"><img src={Click} alt=""/></label>*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
+                    <div className="col-lg-12">
+                        <div className="form-group payment__type online">
+                            {
+
+                            }
+                            <p>To'lov tizimini tanlang</p>
+                            <br/>
+                            <input onClick={handleChangePayme} type="radio" name="payment_sys" value="Payme"
+                                   id="Payme"/>
+                            <label htmlFor="Payme"><img src={Payme} alt=""/></label>
+                            <input onClick={handleChangeClick} type="radio" name="payment_sys" value="Click"
+                                   checked id="Click"/>
+                            <label htmlFor="Click"><img src={Click} alt=""/></label>
+                        </div>
+                    </div>
                 </Container>
                 <Col md={12}>
                     <button type="button" onClick={submitForm} className="btn btn-primary btn-lg float-right">
@@ -359,6 +409,7 @@ const FourthStep = (string, radix) => {
                 {/*    Already registered <a href="/sign-in">sign in?</a>*/}
                 {/*</p>*/}
             </form>
+            <ToastContainer/>
         </Container>
     )
 

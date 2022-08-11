@@ -1,6 +1,6 @@
 import React from 'react';
 import {Step} from "react-step-progress-bar";
-import Check from "../image/check.svg";
+import Check from "../../image/check.svg";
 
 function Register(props) {
     const progressStyle = {

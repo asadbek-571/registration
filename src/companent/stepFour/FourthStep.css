@@ -130,7 +130,7 @@ img {
 }
 
 .payment__type input:checked + label {
-    background: url(../image/check__orange.svg) no-repeat center bottom 10px;
+    background: url(../../image/check__orange.svg) no-repeat center bottom 10px;
     border-color: #0d6efd !important
 }
 

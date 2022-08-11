@@ -1,7 +1,7 @@
 {
   "name": "registration",
   "version": "0.1.0",
-  "proxy": "https://register.uniep.uz/",
+  "proxy": "https://api.register.uniep.uz",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",

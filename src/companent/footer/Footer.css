@@ -1,6 +1,6 @@
 
 footer {
-    background: linear-gradient(to right, var(--blue), var(--blue)), url("../image/hexagon.png");
+    background: linear-gradient(to right, var(--blue), var(--blue)), url("../../image/hexagon.png");
     background-size: cover;
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import './stepFive.css'
-import Success from '../image/svgviewer-output.svg'
+import Success from '../../image/svgviewer-output.svg'
 function Register() {
 
     return (

@@ -3,79 +3,78 @@ import InputMask from 'react-input-mask';
 import {Col, Container, Row} from "react-bootstrap";
 import "react-step-progress-bar/styles.css";
 import {ProgressBar, Step} from "react-step-progress-bar";
-import Check from '../image/check.svg'
+import Check from '../../image/check.svg'
+import axios from "axios";
+import {useNavigate} from 'react-router-dom'
+import {notify} from "../../notification";
+import {ToastContainer} from "react-toastify";
 
-const StepThird = () => {
+const SecondStep = () => {
 
 
+    const navigate = useNavigate()
+    const [formValue, setFormValue] = useState({
+        verificationCode: '',
+        // code: 1,
+    });
     const labelStyle = {
         fontSize: "16px"
     }
 
-
-    const [Variant, setVariant] = useState("");
-    const [AlertText, setAlertText] = useState("");
-    const [formValue, setFormValue] = React.useState({
-        certificateOrDiploma: '',
-        yearOfGraduation: '',
-        information: 0,
-        // code: 1,
-    });
-
     const handleChange = (event) => {
+
         setFormValue({
             ...formValue,
             [event.target.name]: event.target.value
         });
-
     }
 
+
     const submitForm = async (e) => {
-        if (formValue.information > 0 &&
-            formValue.yearOfGraduation !== ''
-        ) {
-            try {
+        try {
+            if (formValue.verificationCode.length === 6) {
                 await register(formValue)
                     .then(data => {
                         console.log(data)
-                        if (data.success === false) {
-                            setAlertText(data.message)
-                            setVariant("danger")
-                        }
                         if (data.success === true) {
-                            window.location = '/pay'
+                            localStorage.setItem("accessToken", data.data.accessToken)
+                            localStorage.setItem("refreshToken", data.data.refreshToken)
                         }
                     })
-            } catch (e) {
-                console.log("Error => " + e)
+            } else {
+                notify(false, "Tasdiqlash ko'dini kiriting")
             }
-        } else {
-            setAlertText("Ma'lumotlar to'ldirilmagan")
-            setVariant("danger")
+        } catch (e) {
+            notify(false, "Tasdiqlash ko'd noto'g'ri kiritilgan")
+            console.log("Error => " + e)
         }
     }
-    const register = async (studentInfo) => {
-        const accessToken = ("Bearer " + localStorage.getItem("accessToken"))
-        const response = await fetch("http://api.register.uniep.uz/api/v1/entrantDoc", {
-            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-            mode: 'cors', // no-cors, *cors, same-origin
-            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: 'same-origin', // include, *same-origin, omit
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': accessToken,
-            },
-            redirect: 'follow', // manual, *follow, error
-            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify(studentInfo) // body data type must match "Content-Type" header
-        });
-        return response.json(); // parses JSON response into native JavaScript objects
 
-    }
+    const register = async () => {
 
-
-    function getDegree() {
-
+        const response = await axios.post(
+            'https://api.register.uniep.uz/api/v1/public/auth/verify',
+            formValue,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        )
+        if (response.status === 500) {
+            notify(false, "Tasdiqlash ko'd noto'g'ri kiritilgan")
+        }
+        if (response.data.success) {
+            let accessToken = response.data.data.accessToken;
+            let refreshToken = response.data.data.refreshToken;
+            localStorage.setItem("accessToken", accessToken)
+            localStorage.setItem("refreshToken", refreshToken)
+            navigate('/degree')
+        }
+        if (!response.data.success) {
+            notify(false, response.data.message)
+        }
+        return response;
     }
 
     const progressStyle = {
@@ -94,30 +93,17 @@ const StepThird = () => {
     }
     return (
         <Container>
-            <form>
 
-                <Container className={'p-2'}>
+            <form>
+                <Container>
                     <h3>Ro'yxatdan o'tish</h3>
                     <br/>
                     <Row>
                         <Col sm={12}>
                             <ProgressBar
-                                percent={66}
+                                percent={33}
                                 filledBackground="linear-gradient(90deg, rgba(0,160,255,1) 0%, rgba(9,9,121,1) 90%)"
                             >
-                                <Step transition="scale">
-                                    {({accomplished}) => (
-                                        <div style={progressStyle}
-                                             className={'d-flex justify-content-center align-items-center'}
-                                        >
-                                            <img
-                                                style={{filter: `grayscale(${accomplished ? 0 : 80}%)`}}
-                                                className={'position-absolute w-75 h-75'}
-                                                src={Check}
-                                            />
-                                        </div>
-                                    )}
-                                </Step>
                                 <Step transition="scale">
                                     {({accomplished}) => (
                                         <div style={progressStyle}
@@ -150,9 +136,20 @@ const StepThird = () => {
                                              className={'d-flex justify-content-center align-items-center'}
                                         >
                                             <img
-                                                style={{
-                                                    filter: `grayscale(${accomplished ? 0 : 80}%)`,
-                                                }}
+                                                style={{filter: `grayscale(${accomplished ? 0 : 80}%)`}}
+                                                className={'position-absolute w-75 h-75'}
+                                                src={Check}
+                                            />
+                                        </div>
+                                    )}
+                                </Step>
+                                <Step transition="scale">
+                                    {({accomplished}) => (
+                                        <div style={progressStyleNotActive}
+                                             className={'d-flex justify-content-center align-items-center'}
+                                        >
+                                            <img
+                                                style={{filter: `grayscale(${accomplished ? 0 : 80}%)`}}
                                                 className={'position-absolute w-75 h-75'}
                                                 src={Check}
                                             />
@@ -164,72 +161,44 @@ const StepThird = () => {
                     </Row>
                     <br/>
                     <br/>
-                    <Row>
-                        <Col sm={4}>
+                    <Row className={'p-2'}>
+                        <Col sm={12}>
                             <div className="mb-3">
-                                <label style={labelStyle}>Ma'lumotingiz</label>
-                                <select
-                                    defaultValue={'0'}
-                                    className={'form-select'}
-                                    required={true}
-                                    name={'information'}
-                                    value={formValue.information}
-                                    onInvalid={e => e.target.setCustomValidity("Ma'lumotinggizni  tanlang")}
-                                    onInput={e => e.target.setCustomValidity('')}
-                                    onChange={handleChange}
-                                    onClick={getDegree}
-                                >
-                                    <option selected={true} value={'0'}>Tanlang</option>
-                                    <option value="1">Shu yilgi maktab bitiruvchisiman</option>
-                                    <option value="2">Umumiy o'rta ta'lim</option>
-                                    <option value="3">O'rta maxsus</option>
-                                </select>
-                            </div>
-                        </Col>
-                        <Col sm={4}>
-                            <div className="mb-3">
-                                <label style={labelStyle}>Tomomlagan yilinggiz</label>
+                                <label style={labelStyle}>Tastdiqlash ko'di</label>
                                 <InputMask
-                                    className={"form-control"}
-                                    name={'yearOfGraduation'}
-                                    mask="9999"
-                                    value={formValue.yearOfGraduation}
+                                    className={"form-control w-50"}
+                                    name={'verificationCode'}
+                                    mask="999999"
+                                    value={formValue.verificationCode}
                                     required={true}
                                     onChange={handleChange}
-                                    onInvalid={e => e.target.setCustomValidity('Tomomlagan yilinggizni kiriting')}
+                                    onInvalid={e => e.target.setCustomValidity("Tastdiqlash ko'dini kiriting")}
                                     onInput={e => e.target.setCustomValidity('')}
                                 >
                                 </InputMask>
                             </div>
                         </Col>
-                        <Col sm={4}>
+                        <Col sm={12}>
                             <div className="mb-3">
-                                <label style={labelStyle}>Attestat / Diplom</label>
-                                <InputMask
-                                    type={'text'}
-                                    className={"form-control"}
-                                    name={'certificateOrDiploma'}
-                                    placeholder={"serya raqami"}
-                                    value={formValue.certificateOrDiploma}
-                                    onChange={handleChange}
-                                >
-                                </InputMask>
+                                <label style={labelStyle}>Tastdiqlash ko'di asosoiy raqaminggizga yuborildi.</label>
                             </div>
                         </Col>
                     </Row>
+
+                    <Col md={12}>
+                        <button type="button" onClick={submitForm} className="btn btn-primary btn-lg float-right">
+                            Keyingisi
+                        </button>
+                    </Col>
+                    {/*<p className="forgot-password text-right">*/}
+                    {/*    Already registered <a href="/sign-in">sign in?</a>*/}
+                    {/*</p>*/}
                 </Container>
-                <Col md={12}>
-                    <button type="button" onClick={submitForm} className="btn btn-primary btn-lg float-right">
-                        Keyingisi
-                    </button>
-                </Col>
-                {/*<p className="forgot-password text-right">*/}
-                {/*    Already registered <a href="/sign-in">sign in?</a>*/}
-                {/*</p>*/}
             </form>
+            <ToastContainer/>
         </Container>
     )
 }
 
 
-export default StepThird
+export default SecondStep

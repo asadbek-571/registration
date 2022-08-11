@@ -1,11 +1,14 @@
 import React, {useState, useEffect} from 'react'
-import InputMask from 'react-input-mask';
-import {Alert, Col, Container, Row} from "react-bootstrap";
-import axios from "axios";
-import "react-step-progress-bar/styles.css";
-import {ProgressBar, Step} from "react-step-progress-bar";
-import Check from '../image/check.svg'
-// import {useHistory} from "react-router-dom";
+import InputMask from 'react-input-mask'
+import { Col, Container, Row} from 'react-bootstrap'
+import axios from 'axios'
+import 'react-step-progress-bar/styles.css'
+import {ProgressBar, Step} from 'react-step-progress-bar'
+import Check from '../../image/check.svg'
+import {useNavigate} from 'react-router-dom'
+import {ToastContainer, toast} from "react-toastify";
+import {notify} from "../../notification";
+
 
 const SignUp = () => {
 
@@ -13,11 +16,11 @@ const SignUp = () => {
     const labelStyle = {
         fontSize: "16px"
     }
-    const [district, setDistrict] = useState([]);
-    const [region, setRegion] = useState([]);
-    const [regionId, setRegionId] = useState();
-    const [Variant, setVariant] = useState("");
-    const [AlertText, setAlertText] = useState("");
+    const navigate = useNavigate()
+    const [district, setDistrict] = useState([])
+    const [region, setRegion] = useState([])
+    const [regionId, setRegionId] = useState()
+
     const [formValue, setFormValue] = React.useState({
         firstName: '',
         lastName: '',
@@ -32,8 +35,21 @@ const SignUp = () => {
     });
     // const history = useHistory()
     const handleChange = (event) => {
-        event.preventDefault()
-        if (event.target.name === 'passport') {
+        getRegions(event)
+
+        if (event.target.name === 'otherPhone') {
+            if (event.target.value == "998") {
+                setFormValue({
+                    ...formValue,
+                    [event.target.name]: ' '
+                });
+            }else {
+                setFormValue({
+                    ...formValue,
+                    [event.target.name]: event.target.value,
+                })
+            }
+        } else if (event.target.name === 'passport') {
             setFormValue({
                 ...formValue,
                 [event.target.name]: event.target.value.toUpperCase()
@@ -41,8 +57,8 @@ const SignUp = () => {
         } else {
             setFormValue({
                 ...formValue,
-                [event.target.name]: event.target.value
-            });
+                [event.target.name]: event.target.value,
+            })
         }
     }
 
@@ -79,56 +95,38 @@ const SignUp = () => {
             try {
                 await register(formValue)
                     .then(data => {
-                        console.log(data)
-                        if (data.success === false) {
-                            setAlertText(data.message)
-                            setVariant("danger")
-                        }
-                        if (data.success === true) {
-                            window.location = '/verification'
-                        }
+
                     })
             } catch (e) {
                 console.log("Error => " + e)
             }
         } else {
-            setAlertText("Ma'lumotlar to'ldirilmagan")
-            setVariant("danger")
+           notify(false,"Ma'lumotlar to'ldirilmagan ")
         }
     }
-    const register = async (studentInfo) => {
 
-        const response = await fetch("http://api.register.uniep.uz/api/v1/user/registerForEntrant", {
-            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-            mode: 'cors', // no-cors, *cors, same-origin
-            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: 'same-origin', // include, *same-origin, omit
-            headers: {
-                'Content-Type': 'application/json'
-                // 'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            redirect: 'follow', // manual, *follow, error
-            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify(studentInfo) // body data type must match "Content-Type" header
-        });
-        return response.json(); // parses JSON response into native JavaScript objects
+    const register = async () => {
 
+        const response = await axios.post(
+            'https://api.register.uniep.uz/api/v1/user/registerForEntrant',
+            formValue
+        )
+        if (response.data.success) {
+            navigate('/verification')
+        }
+        if (!response.data.success) {
+           notify(false,response.data.message)
+        }
+        return response
     }
 
-    const getRegionData = async () => {
-        const response = await fetch(
-            "http://api.register.uniep.uz/api/v1/region/getRegions"
-        ).then((response) => response.json());
-            localStorage.setItem("regions", JSON.stringify(response.data.data))
-            setRegion(response.data.data)
-    };
 
     useEffect(() => {
         const regionList = JSON.parse(localStorage.getItem("regions"))
         const districtList = JSON.parse(localStorage.getItem("districts"))
-        if (regionList == null ) {
+        if (regionList == null) {
             axios
-                .get("http://api.register.uniep.uz/api/v1/region/getRegions")
+                .get("https://api.register.uniep.uz/api/v1/region/getRegions")
                 .then(res => {
                     console.log(res)
                     localStorage.setItem("regions", JSON.stringify(res.data.data))
@@ -137,9 +135,9 @@ const SignUp = () => {
                 .catch(error => console.log(error));
 
         }
-        if (districtList == null ) {
+        if (districtList == null) {
             axios
-                .get("http://api.register.uniep.uz/api/v1/district/getDistrictList")
+                .get("https://api.register.uniep.uz/api/v1/district/getDistrictList")
                 .then(res => {
                     localStorage.setItem("districts", JSON.stringify(res.data.data))
                     setDistrict(res.data.data)
@@ -151,7 +149,9 @@ const SignUp = () => {
 
     function getRegions(event) {
         let id = event.target.value;
-        setRegionId(id)
+        if (event.target.name=="regionId") {
+            setRegionId(id)
+        }
 
         console.log(regionId);
 
@@ -175,16 +175,22 @@ const SignUp = () => {
     }
     const progressStyleNotActive = {
         width: '40px',
-        height: "40px",
+        height: '40px',
         borderRadius: '50%',
-        background: "#E5E5E5",
-        position: "relative",
+        background: '#E5E5E5',
+        position: 'relative',
     }
+
+    function getDistrictId(event) {
+        handleChange(event)
+    }
+
+    function getRegionId(event) {
+        handleChange(event)
+    }
+
     return (
         <Container className={'pt-4 '}>
-            <Alert variant={Variant} show={!!AlertText}>
-                {AlertText}
-            </Alert>
             <form>
                 <Container className={'p-2'}>
                     <h3>Ro'yxatdan o'tish</h3>
@@ -193,7 +199,7 @@ const SignUp = () => {
                         <Col sm={12}>
                             <ProgressBar
                                 percent={0}
-                                filledBackground="linear-gradient(90deg, rgba(0,160,255,1) 0%, rgba(9,9,121,1) 90%)"
+                                filledBackground='linear-gradient(90deg, rgba(0,160,255,1) 0%, rgba(9,9,121,1) 90%)'
                             >
 
                                 <Step transition="scale">
@@ -271,11 +277,11 @@ const SignUp = () => {
                             </div>
                         </Col>
                         <Col sm={4}>
-                            <div className="mb-3">
+                            <div className='mb-3'>
                                 <label style={labelStyle}>Ism</label>
                                 <input
-                                    type="text"
-                                    className="form-control"
+                                    type='text'
+                                    className='form-control'
                                     name={'firstName'}
                                     value={formValue.firstName}
                                     required={true}
@@ -286,11 +292,11 @@ const SignUp = () => {
                             </div>
                         </Col>
                         <Col sm={4}>
-                            <div className="mb-3">
-                                <label style={labelStyle}>Otanggizni ismi</label>
+                            <div className='mb-3'>
+                                <label style={labelStyle}>Otasining ismi</label>
                                 <input
-                                    type="text"
-                                    className="form-control"
+                                    type='text'
+                                    className='form-control'
                                     name={'fatherName'}
                                     value={formValue.fatherName}
                                     required={true}
@@ -303,12 +309,12 @@ const SignUp = () => {
                     </Row>
                     <Row>
                         <Col sm={4}>
-                            <div className="mb-3">
+                            <div className='mb-3'>
                                 <label style={labelStyle}>Telefon</label>
                                 <InputMask
-                                    className={"form-control"}
+                                    className={'form-control'}
                                     name={'phoneNumber'}
-                                    mask="999 99 999 99 99"
+                                    mask='999 99 999 99 99'
                                     value={formValue.phoneNumber}
                                     required={true}
                                     onChange={handleChange}
@@ -319,37 +325,37 @@ const SignUp = () => {
                             </div>
                         </Col>
                         <Col sm={4}>
-                            <div className="mb-3">
-                                <label style={labelStyle}>Qo'shimmcha telefon raqam</label>
+                            <div className='mb-3'>
+                                <label style={labelStyle}>Qo'shimcha telefon raqami</label>
                                 <InputMask
-                                    className={"form-control"}
+                                    className={'form-control'}
                                     name={'otherPhone'}
-                                    mask="999 99 999 99 99"
+                                    mask='999 99 999 99 99'
                                     value={formValue.otherPhone}
                                     onChange={handleChange}>
                                 </InputMask>
                             </div>
                         </Col>
                         <Col sm={4}>
-                            <div className="mb-3">
-                                <label style={labelStyle}>Passport serya raqam</label>
+                            <div className='mb-3'>
+                                <label style={labelStyle}>Passport seriyasi va raqami</label>
                                 <InputMask
-                                    className={"form-control"}
+                                    className={'form-control'}
                                     name={'passport'}
-                                    mask="aa 9999999"
+                                    mask='aa 9999999'
                                     value={formValue.passport}
-                                    onChange={handleChange}>
-                                </InputMask>
+                                    onChange={handleChange}
+                                />
                             </div>
                         </Col>
                     </Row>
                     <Row>
                         <Col sm={4}>
-                            <div className="mb-3">
-                                <label style={labelStyle}>Tug'ulgan sanasi</label>
+                            <div className='mb-3'>
+                                <label style={labelStyle}>Tug'ilgan sanasi</label>
                                 <input
-                                    type="date"
-                                    className="form-control"
+                                    type='date'
+                                    className='form-control'
                                     name={'birthday'}
                                     value={formValue.birthday}
                                     required={true}
@@ -360,7 +366,7 @@ const SignUp = () => {
                             </div>
                         </Col>
                         <Col sm={4}>
-                            <div className="mb-3">
+                            <div className='mb-3'>
                                 <label style={labelStyle}>Viloyat</label>
                                 <select
                                     className={'form-select'}
@@ -370,7 +376,7 @@ const SignUp = () => {
                                     onInvalid={e => e.target.setCustomValidity('Viloyatinggizni tanlang')}
                                     onInput={e => e.target.setCustomValidity('')}
                                     onChange={handleChange}
-                                    onClick={getRegions}
+                                    onClick={getRegionId}
                                     defaultValue={'0'}
                                 >
                                     <option selected value="0">Viloyat tanlang</option>
@@ -382,7 +388,7 @@ const SignUp = () => {
                             </div>
                         </Col>
                         <Col sm={4}>
-                            <div className="mb-3">
+                            <div className='mb-3'>
                                 <label style={labelStyle}>Tuman</label>
                                 <select
                                     className={'form-select'}
@@ -392,6 +398,7 @@ const SignUp = () => {
                                     onInvalid={e => e.target.setCustomValidity('Tumaninggizni tanlang')}
                                     onInput={e => e.target.setCustomValidity('')}
                                     onChange={handleChange}
+                                    onClick={getDistrictId}
                                     defaultValue={'0'}
                                 >
                                     <option selected={true} value="0">Tumanni tanlang</option>
@@ -411,19 +418,13 @@ const SignUp = () => {
                     </button>
                 </Col>
 
-
                 {/*<p className="forgot-password text-right">*/}
                 {/*    Already registered <a href="/sign-in">sign in?</a>*/}
                 {/*</p>*/}
             </form>
-            <Row>
-                <Col>
-
-                </Col>
-            </Row>
+            <ToastContainer/>
         </Container>
     )
 }
-
 
 export default SignUp
